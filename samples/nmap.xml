@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nmaprun scanner="nmap" args="nmap -sV -O example.com" start="1746115200" version="7.94">
+  <host>
+    <address addr="93.184.216.34" addrtype="ipv4"/>
+    <hostnames><hostname name="api.example.com"/></hostnames>
+    <ports>
+      <port protocol="tcp" portid="22"><state state="open"/><service name="ssh" product="OpenSSH" version="7.4p1" extrainfo="Debian"/></port>
+      <port protocol="tcp" portid="80"><state state="open"/><service name="http" product="nginx" version="1.18.0"/></port>
+      <port protocol="tcp" portid="443"><state state="open"/><service name="https" product="nginx" version="1.18.0"/></port>
+      <port protocol="tcp" portid="3306"><state state="open"/><service name="mysql" product="MySQL" version="5.7.42"/></port>
+    </ports>
+  </host>
+  <host>
+    <address addr="93.184.216.35" addrtype="ipv4"/>
+    <hostnames><hostname name="legacy-admin.example.com"/></hostnames>
+    <ports>
+      <port protocol="tcp" portid="22"><state state="open"/><service name="ssh" product="OpenSSH" version="6.6.1p1"/></port>
+      <port protocol="tcp" portid="3389"><state state="open"/><service name="ms-wbt-server" product="Microsoft Terminal Services"/></port>
+      <port protocol="tcp" portid="445"><state state="open"/><service name="microsoft-ds"/></port>
+    </ports>
+  </host>
+</nmaprun>

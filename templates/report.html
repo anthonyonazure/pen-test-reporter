@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ engagement_name }} — Pen Test Report</title>
+<style>
+  @page { size: Letter; margin: 22mm 18mm; @bottom-center { content: counter(page) " / " counter(pages); color: #888; font-size: 9pt; } }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1a1a1a; font-size: 10.5pt; line-height: 1.45; }
+
+  .cover { text-align: center; padding-top: 50mm; }
+  .cover h1 { font-size: 30pt; margin: 4mm 0; }
+  .cover h2 { font-size: 14pt; font-weight: 400; color: #555; margin: 0 0 6mm; }
+  .cover .meta { color: #555; font-size: 11pt; }
+  .pillrow { margin-top: 18mm; }
+  .pill { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 11pt; margin: 2px; }
+  .pill.critical { background: #4a0d0d; color: #fff; }
+  .pill.high { background: #f8d7da; color: #721c24; }
+  .pill.medium { background: #fff3cd; color: #856404; }
+  .pill.low { background: #e2e3e5; color: #383d41; }
+  .pill.info { background: #d1ecf1; color: #0c5460; }
+  .pagebreak { page-break-after: always; }
+
+  h2.section { font-size: 16pt; border-bottom: 2px solid #0b3d91; padding-bottom: 4px; margin-top: 14mm; }
+  h3.finding { font-size: 12pt; margin: 6mm 0 1mm; }
+  .narrative { background: #f4f6f9; padding: 6mm 8mm; border-left: 4px solid #0b3d91; margin: 6mm 0; }
+
+  .finding-block { background: #fafafa; border: 1px solid #eaeaea; border-radius: 4px; padding: 4mm 6mm; margin-bottom: 6mm; }
+  .finding-block.critical { border-left: 4px solid #4a0d0d; }
+  .finding-block.high { border-left: 4px solid #d9534f; }
+  .finding-block.medium { border-left: 4px solid #f0ad4e; }
+  .finding-block.low { border-left: 4px solid #5bc0de; }
+  .finding-block.info { border-left: 4px solid #aaa; }
+  .finding-block .meta { color: #777; font-size: 9pt; margin-bottom: 2mm; }
+  .finding-block .meta code { background: #fff; padding: 0 4px; border-radius: 2px; }
+  .severity-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 8.5pt; font-weight: 700; }
+  .severity-tag.critical { background: #4a0d0d; color: #fff; }
+  .severity-tag.high { background: #d9534f; color: #fff; }
+  .severity-tag.medium { background: #f0ad4e; color: #fff; }
+  .severity-tag.low { background: #5bc0de; color: #fff; }
+  .severity-tag.info { background: #aaa; color: #fff; }
+
+  .hosts-list { font-size: 9pt; }
+  .hosts-list code { background: #fff; padding: 0 4px; border-radius: 2px; border: 1px solid #eaeaea; }
+
+  .remediation { background: #ecf3ec; border-left: 3px solid #28a745; padding: 4mm 6mm; margin-top: 3mm; }
+  .remediation strong { color: #155724; }
+
+  pre.evidence { background: #fbfbfb; border: 1px solid #eee; padding: 3mm; font-size: 8.5pt; line-height: 1.35; white-space: pre-wrap; word-break: break-word; }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <h1>Pen Test Report</h1>
+  <h2>{{ engagement_name }}</h2>
+  <div class="meta">
+    Target: <strong>{{ target_org }}</strong><br>
+    Run id: <code>{{ run_id }}</code> · Generated: {{ generated_at }}
+  </div>
+  <div class="pillrow">
+    {% if severity_counts.critical %}<span class="pill critical">{{ severity_counts.critical }} critical</span>{% endif %}
+    {% if severity_counts.high %}<span class="pill high">{{ severity_counts.high }} high</span>{% endif %}
+    {% if severity_counts.medium %}<span class="pill medium">{{ severity_counts.medium }} medium</span>{% endif %}
+    {% if severity_counts.low %}<span class="pill low">{{ severity_counts.low }} low</span>{% endif %}
+    {% if severity_counts.info %}<span class="pill info">{{ severity_counts.info }} info</span>{% endif %}
+  </div>
+  <div style="margin-top: 6mm; color: #888; font-size: 10pt;">
+    {{ total_findings }} raw findings → {{ grouped|length }} unique issues after dedup
+  </div>
+</section>
+
+<div class="pagebreak"></div>
+
+<h2 class="section">Executive summary</h2>
+<div class="narrative">{{ exec_summary }}</div>
+
+<h2 class="section">Findings index</h2>
+<table style="width:100%; border-collapse: collapse; font-size: 9.5pt;">
+  <thead><tr style="background:#f4f6f9;"><th style="text-align:left; padding:5px 8px;">ID</th><th style="text-align:left; padding:5px 8px;">Title</th><th style="padding:5px 8px;">Severity</th><th style="padding:5px 8px;">Hosts</th></tr></thead>
+  <tbody>
+    {% for g in grouped %}
+    <tr style="border-bottom:1px solid #eaeaea;">
+      <td style="padding:5px 8px;"><code>{{ g.id }}</code></td>
+      <td style="padding:5px 8px;">{{ g.title }}</td>
+      <td style="padding:5px 8px; text-align:center;"><span class="severity-tag {{ g.severity }}">{{ g.severity|upper }}</span></td>
+      <td style="padding:5px 8px; text-align:center;">{{ g.affected_hosts|length }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagebreak"></div>
+
+<h2 class="section">Findings — full detail</h2>
+{% for g in grouped %}
+<div class="finding-block {{ g.severity }}">
+  <h3 class="finding"><span class="severity-tag {{ g.severity }}">{{ g.severity|upper }}</span> &nbsp; {{ g.title }}</h3>
+  <div class="meta">
+    <code>{{ g.id }}</code> · scanner <code>{{ g.scanner }}</code> · template <code>{{ g.template_id }}</code>
+  </div>
+  <p class="hosts-list">
+    <strong>Affected ({{ g.affected_hosts|length }}):</strong>
+    {% for ah in g.affected_hosts %}<code>{{ ah.host }}{{ ah.path }}</code>{% if not loop.last %} · {% endif %}{% endfor %}
+  </p>
+  <div class="remediation">
+    <strong>Remediation:</strong> {{ remediations.get(g.id, '(no remediation generated)') }}
+  </div>
+  {% if g.samples %}
+  <details>
+    <summary style="margin-top: 3mm; font-size: 9pt; color: #555;">Sample evidence (first {{ g.samples|length }})</summary>
+    <pre class="evidence">{{ g.samples[0] | tojson(indent=2) }}</pre>
+  </details>
+  {% endif %}
+</div>
+{% endfor %}
+
+</body>
+</html>
