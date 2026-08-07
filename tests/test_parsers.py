@@ -10,7 +10,15 @@ def test_parse_nuclei_returns_normalized_findings():
     assert len(findings) == 12
     # All have the standard fields
     for f in findings:
-        assert {"id", "title", "severity", "host", "scanner", "template_id", "raw"} <= set(f)
+        assert {
+            "id",
+            "title",
+            "severity",
+            "host",
+            "scanner",
+            "template_id",
+            "raw",
+        } <= set(f)
         assert f["scanner"] == "nuclei"
         assert f["severity"] in {"info", "low", "medium", "high", "critical"}
 
@@ -31,6 +39,10 @@ def test_parse_nmap_flags_exposed_mysql_as_high():
 
 def test_parse_nmap_flags_outdated_openssh():
     findings = parse_nmap(REPO / "samples" / "nmap.xml")
-    outdated = [f for f in findings if "outdated" in f["title"].lower() and "openssh" in f["title"].lower()]
+    outdated = [
+        f
+        for f in findings
+        if "outdated" in f["title"].lower() and "openssh" in f["title"].lower()
+    ]
     assert outdated
     assert outdated[0]["severity"] in ("low", "medium")
