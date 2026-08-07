@@ -20,7 +20,10 @@ async def test_full_run(tmp_path, monkeypatch):
     g = build_graph().compile()
     initial: PState = {
         "run_id": "test-run",
-        "inputs": [str(REPO / "samples" / "nuclei.jsonl"), str(REPO / "samples" / "nmap.xml")],
+        "inputs": [
+            str(REPO / "samples" / "nuclei.jsonl"),
+            str(REPO / "samples" / "nmap.xml"),
+        ],
         "engagement_name": "Test Engagement",
         "target_org": "Example Corp",
         "events": [],
@@ -36,7 +39,10 @@ async def test_full_run(tmp_path, monkeypatch):
     grouped = final["findings_grouped"]
     assert len(grouped) < len(final["findings_raw"])
     # The xz-utils CRITICAL must survive
-    assert any("xz-utils" in g["title"].lower() and g["severity"] == "critical" for g in grouped)
+    assert any(
+        "xz-utils" in g["title"].lower() and g["severity"] == "critical"
+        for g in grouped
+    )
 
     # PDF + sidecar
     pdf = tmp_path / "test-run-pentest-report.pdf"
